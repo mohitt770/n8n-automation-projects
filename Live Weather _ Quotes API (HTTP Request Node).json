@@ -1,0 +1,239 @@
+{
+  "name": "Live Weather / Quotes API (HTTP Request Node)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "86f6ac3b-4917-43c3-b54e-e13433d1cf87",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast?latitude=21.1458&longitude=79.0882&current_weather=true",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "de5248e6-7fb0-4952-900e-fd3fb00a4478",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2b28e9ed-3954-4101-a0e4-66ee6ad33de6",
+              "name": "weather_report",
+              "value": "=Nagpur Temperature: {{ $json.current_weather.temperature }}°C | Wind Speed: {{ $json.current_weather.windspeed }} km/h",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "d841f96f-0f0f-4ec5-8069-77fec7210cc0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "48f7eee6-4221-4886-8f06-0fc2c03da13c",
+              "leftValue": "={{ $('HTTP Request').item.json.current_weather.temperature }}",
+              "rightValue": null,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "20e30425-8667-4fd8-b136-6748a4edb70c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "286cd004-0ab8-443b-b6a9-910c3e2449e2",
+              "name": "alert_status",
+              "value": "High Temp Alert! Turn on AC/Fan.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        896,
+        -96
+      ],
+      "id": "f95c9a33-666c-4736-a841-9baa8dafd21b",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ec472a17-ea82-472e-961b-0bcc580cdc4f",
+              "name": "alert_status",
+              "value": "Weather is pleasant. No action needed.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        896,
+        96
+      ],
+      "id": "b1512729-93d9-4408-b8d3-a6e11a4877af",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "chatId": "=chat_id",
+        "text": "={{ $json.alert_status }}\n{{ $('Edit Fields').item.json.weather_report }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        -96
+      ],
+      "id": "23d09c38-b8d2-4cc0-be8f-c972b6a509b0",
+      "name": "Send a text message",
+      "webhookId": "4116883f-912e-4e8d-a836-fb4b078a738c",
+      "credentials": {
+        "telegramApi": {
+          "id": "BIzLYIARuH7eH1J1",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d1ca5da5-ce62-49cc-bbcb-09ae9aeaf734",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b5ed28123f091616a2a0c9e75718db68a6f80691017c0361fa99453415010f9a"
+  },
+  "nodeGroups": [],
+  "id": "6vXdT3rrtFZaxHbJ",
+  "tags": []
+}
