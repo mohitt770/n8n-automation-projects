@@ -8,7 +8,7 @@ An end-to-end workflow automation built with self-hosted **n8n** that fetches li
 2. **HTTP Request Node:** Queries the Open-Meteo REST API (`GET`) to retrieve real-time temperature and wind speed data.
 3. **Edit Fields (Set) Node:** Parses raw JSON responses using JavaScript expressions into a clean, human-readable weather report.
 4. **IF Node (Conditional Routing):** Evaluates whether the live temperature exceeds a set threshold (`> 20°C` / custom limit) and routes execution into `true` or `false` branches.
-5. **Telegram Bot API:** Sends a formatted real-time alert directly to a Telegram chat when the condition is met.
+5. **Dual-Branch Telegram Alerts:** Sends formatted real-time alerts to Telegram for both `true` (High Temperature Alert) and `false` (Pleasant Weather Update) conditions.
 
 ## Tech Stack & Nodes Used
 - **Platform:** n8n (Self-hosted via Node.js)
